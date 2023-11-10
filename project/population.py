@@ -2,11 +2,11 @@ from ant import Ant
 import random
 
 class Population:
-    def __init__(self, _screen, pop_size, tgt_pos):
+    def __init__(self, _screen, pop_size, tgt_pos, mut_rate, spread):
         self.screen = _screen
         self.size = pop_size
         self.tgt = tgt_pos
-        self.ant_population: list(Ant) = [Ant(_screen, 600, 600, tgt_pos) for _ in range(pop_size)]
+        self.ant_population: list(Ant) = [Ant(_screen, 600, 600, tgt_pos, mut_rate, spread) for _ in range(pop_size)]
     
     def drawall(self):
         for ant in self.ant_population:
@@ -38,6 +38,13 @@ class Population:
         avgfit = totalfit / len(self.ant_population)
         return avgfit
 
+    def countHitTarget(self):
+        totalhit = 0
+        for ant in self.ant_population:
+            if ant.didHit():
+                totalhit += 1
+        return totalhit
+
     def newGeneration(self):
         newgen = []
         topfit = self.getTopFitness()
@@ -47,7 +54,7 @@ class Population:
         self.ant_population = newgen
 
     def selectAntWithBias(self, delta):
-        threshold = random.random() * (delta - (random.random() * delta))
+        threshold = random.random() * (delta)
         # threshold = random.random(delta - random.random(delta//2))
         for ant in self.ant_population:
             if ant.calculateFitness() > threshold:
