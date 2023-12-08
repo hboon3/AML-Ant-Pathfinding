@@ -2,19 +2,35 @@ from ant import Ant
 import random
 
 class Population:
-    def __init__(self, _screen, pop_size, tgt_pos, mut_rate, spread):
+    def __init__(self, _screen, pop_size, tgt_pos, mut_rate, spread, _t):
         self.screen = _screen
         self.size = pop_size
         self.tgt = tgt_pos
-        self.ant_population: list(Ant) = [Ant(_screen, 600, 600, tgt_pos, mut_rate, spread) for _ in range(pop_size)]
-    
+        self.ant_population: list(Ant) = [Ant(_screen, 600, 600, tgt_pos, mut_rate, spread, _t) for _ in range(pop_size)]
+        self.obstacles = []
+
+    def addObstacle(self, obs):
+        self.obstacles.append(obs)
+
     def drawall(self):
         for ant in self.ant_population:
             ant.draw()
+    
+    def checkObstacleCollisions(self):
+        for obst in self.obstacles:
+            for ant in self.ant_population:
+                if obst.registerCollision(ant.position):
+                    ant.setDead()
+
 
     def update(self):
+        for obstacle in self.obstacles:
+            obstacle.draw()
+
         for ant in self.ant_population:
             ant.move()
+        
+        self.checkObstacleCollisions()
 
     def allStopped(self):
         for ant in self.ant_population:
@@ -54,8 +70,9 @@ class Population:
         self.ant_population = newgen
 
     def selectAntWithBias(self, delta):
-        threshold = random.random() * (delta)
-        # threshold = random.random(delta - random.random(delta//2))
+        # threshold = random.random() * (delta)
+        # threshold = random.random() * (delta - (random.random()*delta//2))
+        threshold = 0.8*delta
         for ant in self.ant_population:
             if ant.calculateFitness() > threshold:
                 return ant.clone()
