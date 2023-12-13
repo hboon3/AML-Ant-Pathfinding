@@ -16,6 +16,7 @@ class Ant:
         self.brain = Brain(mut_rate, _spread, _t)
         self.isDead = False
         self.hitTarget = False
+        self.steps_taken = []
 
     def draw(self):
         pygame.draw.circle(self.screen, (255,255,255), self.position, 6)
@@ -30,19 +31,18 @@ class Ant:
                 self.isDead = True
                 self.draw()
                 return
-            # dir = self.brain.getDir()
-            # dir = self.brain.getCurrentStep()
             self.acc = self.brain.getCurrentStep()
             self.brain.current_step += 1
 
             self.vel += self.acc
-            self.vel.scale_to_length(7.0)
+            if self.vel.magnitude() > 7.0:
+                self.vel.scale_to_length(7.0)
             self.position += self.vel
-
+            self.steps_taken.append(self.position.copy())
             if self.position.x < 6 or self.position.x > (self.screenx-6) or self.position.y < 6 or self.position.y > (self.screeny-6):
                 self.isDead = True
             
-            if self.position.distance_to(self.tgt) < 5:
+            if self.position.distance_to(self.tgt) < 7:
                 self.isDead = True
                 self.hitTarget = True
             self.draw()
@@ -62,8 +62,22 @@ class Ant:
     
     def calculateFitness(self):
         if self.hitTarget:
-            return 1.0/16.0 + 1000.0/(self.brain.current_step**2)
+            best = 0
+            for step in self.steps_taken:
+                fit = (1.0 / (step.distance_to(self.tgt)**2)) + (1000.0/(self.brain.current_step**2))
+                if fit > best:
+                    best = fit
+            return best
+
+            return  (1.0 / (self.position.distance_to(self.tgt)**2)) + (1000.0/(self.brain.current_step**2))
         else:
+            best = 0
+            for step in self.steps_taken:
+                fit = (1.0 / (step.distance_to(self.tgt)**2))
+                if fit > best:
+                    best = fit
+            return best
+        
             return 1.0 / (self.position.distance_to(self.tgt)**2)
     
     def mutate(self):
