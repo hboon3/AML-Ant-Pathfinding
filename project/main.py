@@ -10,8 +10,9 @@ from matplotlib import pyplot as plt
 POPULATION_SIZE = 50
 NUM_GENERATIONS = 50
 MUTATION_RATE = 0.05
-MUTATION_SPREAD = 10
 MAX_STEP_THRESHOLD = 200
+NUM_OBSTACLES = 2 # options: 0, 1, 2
+ASTAR_ON = False
 
 pygame.init()
 fitness_scores = []
@@ -27,18 +28,20 @@ target_position = pygame.Vector2(x=500,y=100)
 
 screen.fill((0,0,0))
 
-pop = Population(screen, POPULATION_SIZE, target_position, MUTATION_RATE, MUTATION_SPREAD, MAX_STEP_THRESHOLD)
+pop = Population(screen, POPULATION_SIZE, target_position, MUTATION_RATE, MAX_STEP_THRESHOLD)
 
 # Add obstacle(s) for ants to navigate
 ob = Obstacle(screen, pygame.Vector2(x=150,y=300), pygame.Vector2(x=300,y=50))
-# pop.addObstacle(ob)
-
 
 ob1 = Obstacle(screen, pygame.Vector2(x=0, y=400), pygame.Vector2(x=400, y=50))
 ob2 = Obstacle(screen, pygame.Vector2(x=400, y=150), pygame.Vector2(x=200, y=50))
 
-pop.addObstacle(ob1)
-pop.addObstacle(ob2)
+if NUM_OBSTACLES == 1:
+    pop.addObstacle(ob)
+elif NUM_OBSTACLES == 2:
+    pop.addObstacle(ob1)
+    pop.addObstacle(ob2)
+
 # # We don't want the target to spawn inside of an obstacle
 # while pop.checkObstacleWithPosition(target_position):
 #     target_position = pygame.Vector2(x=int(random.random()*(screen_width-4)),y=int(random.random()*(screen_height-4)))
@@ -150,17 +153,17 @@ def astar(maze, start, end):
 
 # CONSTRUCTING GRAPH FOR ASTAR WITH OBSTACLES IN MIND
 maze = []
-for i in range(300):
+for i in range(600):
     line = []
-    for j in range(300):
-        if not pop.checkObstacleWithPosition(pygame.Vector2(x=(2*i),y=(2*j))):
+    for j in range(600):
+        if not pop.checkObstacleWithPosition(pygame.Vector2(x=(i),y=(j))):
             line.append(0)
         else:
             line.append(1)
     maze.append(line)
 
 # SPAWN COORDINATES: X=100, Y=500
-start = (50, 250)
+start = (100, 500)
 
 # targetSpawnedInObstacle = True
 # while targetSpawnedInObstacle:
@@ -175,15 +178,16 @@ start = (50, 250)
 
 # pop.setTarget(target_position)
 
-end = (int(target_position.x // 2), int(target_position.y // 2))
-
-# minpath = astar(maze, start, end)
+end = (int(target_position.x), int(target_position.y))
+if ASTAR_ON:
+    minpath = astar(maze, start, end)
 
 # Convert the tuples returned from astar() into pygame vectors
-# coords = [pygame.Vector2(x=(2*v[0]), y=(2*v[1])) for v in minpath]
-pygame.draw.circle(screen, (255,0,0), target_position, 5)
-# pygame.draw.lines(screen, (0,255,0), False, coords)
-pygame.display.flip()
+if ASTAR_ON:
+    coords = [pygame.Vector2(x=(v[0]), y=(v[1])) for v in minpath]
+    pygame.draw.circle(screen, (255,0,0), target_position, 5)
+    pygame.draw.lines(screen, (0,255,0), False, coords)
+    pygame.display.flip()
 
 
 generation = 0
@@ -195,7 +199,8 @@ while generation < NUM_GENERATIONS:
         # Draw target
         pygame.draw.circle(screen, (255,0,0), target_position, 7)
         # Draw astar path
-        # pygame.draw.lines(screen, (0,255,0), False, coords)
+        if ASTAR_ON:
+            pygame.draw.lines(screen, (0,255,0), False, coords)
         # Update ant population
         pop.update()
         

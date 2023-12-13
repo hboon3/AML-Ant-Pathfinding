@@ -2,14 +2,14 @@ from ant import Ant
 import random
 
 class Population:
-    def __init__(self, _screen, pop_size, tgt_pos, mut_rate, spread, _t):
+    def __init__(self, _screen, pop_size, tgt_pos, mut_rate, _t):
         self.screen = _screen
         self.size = pop_size
         self.tgt = tgt_pos
         # NOTE: 600 \ 600 is hardcoded here as this is the screen size designated in main.py
         # Would need to add this as a constructor parameter if we want variable screen sizes
         
-        self.ant_population: list(Ant) = [Ant(_screen, 600, 600, tgt_pos, mut_rate, spread, _t) for _ in range(pop_size)]
+        self.ant_population: list(Ant) = [Ant(_screen, 600, 600, tgt_pos, mut_rate, _t) for _ in range(pop_size)]
         self.obstacles = []
 
     def setTarget(self, t):

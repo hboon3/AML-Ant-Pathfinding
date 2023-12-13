@@ -3,9 +3,8 @@ import math
 import pygame
 
 class Brain:
-    def __init__(self, _mutation_rate, _spread, _t):
+    def __init__(self, _mutation_rate, _t):
         self.mutation_rate = _mutation_rate
-        self.spread = _spread
         self.steps = [None] * _t
         self.current_step = 0
         self.steps[0] = pygame.Vector2(x=0,y=1).rotate(random.random()*360)
@@ -21,7 +20,7 @@ class Brain:
         return self.steps[self.current_step]
     
     def clone(self):
-        c = Brain(self.mutation_rate, self.spread, len(self.steps))
+        c = Brain(self.mutation_rate, len(self.steps))
         for i in range(len(self.steps)):
             c.steps[i] = self.steps[i]
 

@@ -2,9 +2,8 @@ import pygame
 from brain import Brain
 
 class Ant:
-    def __init__(self, _screen, _screenx, _screeny, target_position, mut_rate, _spread, _t):
+    def __init__(self, _screen, _screenx, _screeny, target_position, mut_rate, _t):
         self.mutation_rate = mut_rate
-        self.spread = _spread
         self.screenx = _screenx
         self.screeny = _screeny
         self.screen = _screen
@@ -13,7 +12,7 @@ class Ant:
         self.position = pygame.Vector2(x=100,y=500)
         self.vel = pygame.Vector2(x=0,y=0)
         self.acc = pygame.Vector2(x=0,y=0)
-        self.brain = Brain(mut_rate, _spread, _t)
+        self.brain = Brain(mut_rate, _t)
         self.isDead = False
         self.hitTarget = False
         self.steps_taken = []
@@ -56,7 +55,7 @@ class Ant:
         return self.hitTarget
 
     def clone(self):
-        c = Ant(self.screen, self.screenx, self.screeny, self.tgt, self.mutation_rate, self.spread, self.max_step)
+        c = Ant(self.screen, self.screenx, self.screeny, self.tgt, self.mutation_rate, self.max_step)
         c.brain = self.brain.clone()
         return c
     
